@@ -1,5 +1,7 @@
+
+
 const mongoose = require('mongoose');
-const connect = mongoose.connect("mongodb://localhost:27017/nourishify");
+const connect = mongoose.connect("mongodb+srv://nourishify:ppl12345@cluster0.zqahjjk.mongodb.net/nourishify");
 
 // Check database connected or not
 connect.then(() => {
