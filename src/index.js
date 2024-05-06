@@ -23,28 +23,32 @@ app.get("/signup", (req, res) => {
 
 // Register User
 app.post("/signup", async (req, res) => {
+    try {
+        // Validasi data
+        const { nisn, password } = req.body;
+        if (!nisn || !password) {
+            return res.status(400).send("NISN and password are required.");
+        }
 
-    const data = {
-        nisn: req.body.nisn,
-        password: req.body.password
-    }
+        // Check if the username already exists in the database
+        const existingUser = await collection.findOne({ nisn });
+        if (existingUser) {
+            return res.status(400).send('User already exists. Please choose a different NISN.');
+        }
 
-    // Check if the username already exists in the database
-    const existingUser = await collection.findOne({ nisn: data.nisn });
-
-    if (existingUser) {
-        res.send('User already exists. Please choose a different nisn.');
-    } else {
         // Hash the password using bcrypt
-        const saltRounds = 10; // Number of salt rounds for bcrypt
-        const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        data.password = hashedPassword; // Replace the original password with the hashed one
+        // Simpan data pengguna ke database
+        const newUser = new collection({ nisn, password: hashedPassword });
+        await newUser.save();
 
-        const userdata = await collection.insertMany(data);
-        console.log(userdata);
+        res.status(201).send("User created successfully.");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
     }
-
 });
 
 // Login user 
