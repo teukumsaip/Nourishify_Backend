@@ -54,23 +54,24 @@ app.post("/signup", async (req, res) => {
 //Login user 
 app.post("/login", async (req, res) => {
     try {
-        const check = await collection.findOne({ name: req.body.username });
+        const check = await collection.findOne({ nisn: req.body.nisn });
         if (!check) {
-            res.send("User name cannot found")
+            res.send("User not found");
+        } else {
+            // Bandingkan password yang di-hash dari database dengan password yang diberikan
+            const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
+            if (!isPasswordMatch) {
+                res.send("Wrong password");
+            } else {
+                res.render("home");
+            }
         }
-        // Compare the hashed password from the database with the plaintext password
-        const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
-        if (!isPasswordMatch) {
-            res.send("wrong Password");
-        }
-        else {
-            res.render("home");
-        }
-    }
-    catch {
-        res.send("wrong Details");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
     }
 });
+
 
 
 // Define Port for Application

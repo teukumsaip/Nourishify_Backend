@@ -1,9 +1,7 @@
-
-
 const mongoose = require('mongoose');
 const connect = mongoose.connect("mongodb+srv://nourishify:ppl12345@cluster0.zqahjjk.mongodb.net/nourishify");
 
-// Check database connected or not
+// Check koneksi database
 connect.then(() => {
     console.log("Database Connected Successfully");
 })
@@ -11,7 +9,7 @@ connect.then(() => {
     console.log("Database cannot be Connected");
 })
 
-// Create Schema
+// Schema database
 const Loginschema = new mongoose.Schema({
     nisn: {
         type:Number,
@@ -23,7 +21,7 @@ const Loginschema = new mongoose.Schema({
     }
 });
 
-// collection part
+// mengirim data ke colection
 const collection = new mongoose.model("siswas", Loginschema);
 
 module.exports = collection;
