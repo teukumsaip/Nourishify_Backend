@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Siswa</title>
+    <link rel="stylesheet" href="/styles.css"> 
+</head>
+<body>
+    <header>
+        <h1>Profile Siswa</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Informasi Siswa</h2>
+            <ul>
+                <li><strong>NISN:</strong> <%= siswa.nisn %></li>
+                <li><strong>Nama:</strong> <%= siswa.nama %></li>
+                <li><strong>Tempat Lahir:</strong> <%= siswa.tempat_lahir %></li>
+                <li><strong>Tanggal Lahigr:</strong> <%= siswa.tanggal_lahir.toDateString() %></li>
+                <li><strong>Gender:</strong> <%= siswa.gender %></li>
+                <li><strong>Angkatan:</strong> <%= siswa.angkatan %></li>
+                <li><strong>Kelas:</strong> <%= siswa.kelas %></li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Your Website</p>
+    </footer>
+</body>
+</html>
