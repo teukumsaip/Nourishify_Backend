@@ -9,7 +9,7 @@ connect.then(() => {
     console.log("Database cannot be Connected");
 })
 
-const Loginschema = new mongoose.Schema({
+const Siswaschema = new mongoose.Schema({
     nisn: {
         type: Number,
         required: true,
@@ -22,7 +22,7 @@ const Loginschema = new mongoose.Schema({
     },
     nama: {
         type: String,
-        required: true,
+        required: false,
         immutable: true
     },
     tempat_lahir: {
@@ -36,7 +36,7 @@ const Loginschema = new mongoose.Schema({
     gender: {
         type: String,
         enum: ['Laki-laki', 'Perempuan'], 
-        required: true,
+        required: false,
         immutable: true
     },
     angkatan: {
@@ -49,14 +49,9 @@ const Loginschema = new mongoose.Schema({
     }
 });
 
-const SiswaModel = mongoose.model("siswas", Loginschema);
+const SiswaModel = mongoose.model("siswas", Siswaschema);
 
 const AdminSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-        unique: true
-    },
     nama: {
         type: String,
         required: true

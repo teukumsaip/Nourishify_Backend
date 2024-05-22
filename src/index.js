@@ -54,6 +54,35 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+app.get('/signup/admin', (req, res) => {
+  res.render('signupAdmin');
+});
+
+app.post("/signup/admin", async (req, res) => {
+    try {
+        const { nama, email, password } = req.body;
+        if (!nama || !email || !password) {
+            return res.status(400).send("Nama, email, dan password diperlukan.");
+        }
+
+        const existingAdmin = await AdminModel.findOne({ email });
+        if (existingAdmin) {
+            return res.status(400).send('Admin sudah ada. Silakan gunakan email yang berbeda.');
+        }
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newAdmin = new AdminModel({ nama, email, password: hashedPassword });
+        await newAdmin.save();
+
+        res.status(201).send("Admin berhasil ditambahkan.");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
 app.post("/login", async (req, res) => {
     try {
         const { nisn, password } = req.body;
@@ -160,20 +189,41 @@ app.get("/profile/edit/:nisn", async (req, res) => {
 app.post("/profile/update/:nisn", async (req, res) => {
     try {
         const nisn = req.params.nisn;
-        const { nama, gender, tempat_lahir, tanggal_lahir, angkatan, kelas } = req.body;
+        const { nama, gender, tempat_lahir, tanggal_lahir, angkatan, kelas, current_password, new_password, confirm_password } = req.body;
 
-        const siswa = await SiswaModel.findOneAndUpdate(
-            { nisn },
-            { nama, gender, tempat_lahir, tanggal_lahir, angkatan, kelas },
-            { new: true }
-        );
+        // Temukan siswa berdasarkan NISN
+        const siswa = await SiswaModel.findOne({ nisn });
 
+        // Pastikan siswa ditemukan
         if (!siswa) {
             return res.status(404).send("Siswa tidak ditemukan");
         }
-        req.session.siswa = siswa;
 
-        res.redirect(`/profile/siswa/${nisn}`);
+        // Periksa apakah sandi saat ini cocok
+        const isPasswordMatch = await bcrypt.compare(current_password, siswa.password);
+        if (!isPasswordMatch) {
+            return res.status(400).send("Sandi saat ini salah");
+        }
+
+        // Update informasi siswa
+        siswa.nama = nama;
+        siswa.gender = gender;
+        siswa.tempat_lahir = tempat_lahir;
+        siswa.tanggal_lahir = tanggal_lahir;
+        siswa.angkatan = angkatan;
+        siswa.kelas = kelas;
+
+        // Jika ada perubahan sandi, hash sandi baru dan simpan
+        if (new_password && new_password === confirm_password) {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(new_password, saltRounds);
+            siswa.password = hashedPassword;
+        }
+
+        // Simpan perubahan
+        await siswa.save();
+
+        res.status(200).send("Informasi siswa berhasil diperbarui");
     } catch (error) {
         console.error(error);
         res.status(500).send("Kesalahan Server Internal");
