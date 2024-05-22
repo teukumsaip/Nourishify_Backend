@@ -1,26 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="/styles.css"> 
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
-        <h1>Welcome to the Home Page</h1>
+        <h1>Home</h1>
         <nav>
             <ul>
-                <% if (isAdmin) { %>
-                    <li><a href="/profile/admin">Profile Admin</a></li>
-                <% } else { %>
-                    <li><a href="/profile/siswa">Profile Siswa</a></li>
-                <% } %>
+                <li><a href="/home">Home</a></li>
+                <li><a href="/profile/siswa/<%= siswa.nisn %>">Profile</a></li>
+                <li><a href="/logout">Logout</a></li>
             </ul>
         </nav>
     </header>
     <main>
-        <p>This is the home page content.</p>
+        <div class="main-content">
+            <h2>Welcome, <%= siswa.nama %>!</h2>
+            <a href="/profile/siswa/<%= siswa.nisn %>">Lihat Profil</a>
+        </div>
     </main>
     <footer>
         <p>&copy; 2024 Your Website</p>

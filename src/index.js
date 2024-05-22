@@ -1,19 +1,25 @@
 const express = require("express");
 const path = require("path");
-const collection = require("./config");
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+const session = require('express-session');
 const { SiswaModel, AdminModel, MenuModel, TransaksiModel, BoothModel } = require("./config");
 
-
 const app = express();
-// convert data into json format
+
 app.use(express.json());
-// Static file
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
-app.use(express.urlencoded({ extended: false }));
-//use EJS as the view engine
 app.set("view engine", "ejs");
+
+// Konfigurasi sesi
+app.use(session({
+    secret: 'your-secret-key', // Ganti dengan secret key yang lebih aman
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 app.get("/", (req, res) => {
     res.render("login");
@@ -23,17 +29,16 @@ app.get("/signup", (req, res) => {
     res.render("signup");
 });
 
-// Register User
 app.post("/signup", async (req, res) => {
     try {
         const { nisn, password } = req.body;
         if (!nisn || !password) {
-            return res.status(400).send("NISN and password are required.");
+            return res.status(400).send("NISN dan password diperlukan.");
         }
 
-        const existingUser = await SiswaModel.findOne({ nisn }); // Menggunakan SiswaModel
+        const existingUser = await SiswaModel.findOne({ nisn });
         if (existingUser) {
-            return res.status(400).send('User already exists. Please choose a different NISN.');
+            return res.status(400).send('Pengguna sudah ada. Silakan pilih NISN yang berbeda.');
         }
 
         const saltRounds = 10;
@@ -42,37 +47,37 @@ app.post("/signup", async (req, res) => {
         const newUser = new SiswaModel({ nisn, password: hashedPassword });
         await newUser.save();
 
-        res.status(201).send("User created successfully.");
+        res.status(201).send("Pengguna berhasil dibuat.");
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send("Kesalahan Server Internal");
     }
 });
 
-//Login user 
 app.post("/login", async (req, res) => {
     try {
-        const check = await SiswaModel.findOne({ nisn: req.body.nisn });
-        if (!check) {
-            res.send("User not found");
-        } else {
-            const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
-            if (!isPasswordMatch) {
-                res.send("Wrong password");
-            } else {
-                // Assuming isAdmin is determined based on some criteria, adjust this according to your logic
-                const isAdmin = false;
+        const { nisn, password } = req.body;
+        const siswa = await SiswaModel.findOne({ nisn });
 
-                res.render("home", { isAdmin }); // Pass isAdmin to the template
-            }
+        if (!siswa) {
+            return res.status(400).send("Pengguna tidak ditemukan");
         }
+
+        const isPasswordMatch = await bcrypt.compare(password, siswa.password);
+        if (!isPasswordMatch) {
+            return res.status(400).send("Password salah");
+        }
+
+        // Simpan informasi pengguna dalam sesi
+        req.session.siswa = siswa;
+
+        res.render("home", { siswa });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send("Kesalahan Server Internal");
     }
 });
 
-//Login admin
 app.post("/admin/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -80,47 +85,102 @@ app.post("/admin/login", async (req, res) => {
         const admin = await AdminModel.findOne({ email });
 
         if (!admin) {
-            return res.send("Admin not found");
+            return res.status(400).send("Admin tidak ditemukan");
         }
 
         const isPasswordMatch = await bcrypt.compare(password, admin.password);
 
         if (!isPasswordMatch) {
-            return res.send("Wrong password");
+            return res.status(400).send("Password salah");
         }
 
-        res.render("admin_dashboard"); 
+        res.render("admin_dashboard");
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send("Kesalahan Server Internal");
     }
 });
 
-// Define a GET route for displaying the profile of a siswa
 app.get("/profile/siswa/:nisn", async (req, res) => {
     try {
-        // Retrieve the NISN parameter from the URL
         const nisn = req.params.nisn;
 
-        // Find the siswa in the database based on the NISN
         const siswa = await SiswaModel.findOne({ nisn });
 
-        // If siswa is not found, send a 404 Not Found response
         if (!siswa) {
-            return res.status(404).send("Siswa not found");
+            return res.status(404).send("Siswa tidak ditemukan");
         }
 
-        // Render the profileSiswa.ejs template and pass the siswa data to it
         res.render("profileSiswa", { siswa });
     } catch (error) {
-        // If an error occurs, send a 500 Internal Server Error response
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send("Kesalahan Server Internal");
     }
 });
 
-// Define Port for Application
+app.get("/home", (req, res) => {
+    // Tampilkan halaman home.ejs
+    res.render("home", { siswa: req.session.siswa });
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send("Gagal logout.");
+        }
+        res.redirect('/');
+    });
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send("Gagal logout.");
+        }
+        res.redirect('/');
+    });
+});
+
+app.get("/profile/edit/:nisn", async (req, res) => {
+    try {
+        const nisn = req.params.nisn;
+        const siswa = await SiswaModel.findOne({ nisn });
+
+        if (!siswa) {
+            return res.status(404).send("Siswa tidak ditemukan");
+        }
+
+        res.render("editProfile", { siswa });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+app.post("/profile/update/:nisn", async (req, res) => {
+    try {
+        const nisn = req.params.nisn;
+        const { nama, gender, tempat_lahir, tanggal_lahir, angkatan, kelas } = req.body;
+
+        const siswa = await SiswaModel.findOneAndUpdate(
+            { nisn },
+            { nama, gender, tempat_lahir, tanggal_lahir, angkatan, kelas },
+            { new: true }
+        );
+
+        if (!siswa) {
+            return res.status(404).send("Siswa tidak ditemukan");
+        }
+        req.session.siswa = siswa;
+
+        res.redirect(`/profile/siswa/${nisn}`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
 const port = 5000;
 app.listen(port, () => {
-    console.log(`Server listening on port ${port}`)
+    console.log(`Server mendengarkan di port ${port}`);
 });

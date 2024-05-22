@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Siswa</title>
-    <link rel="stylesheet" href="/styles.css"> 
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
         <h1>Profile Siswa</h1>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
+                <li><a href="/home">Home</a></li>
             </ul>
         </nav>
     </header>
@@ -22,11 +22,14 @@
                 <li><strong>NISN:</strong> <%= siswa.nisn %></li>
                 <li><strong>Nama:</strong> <%= siswa.nama %></li>
                 <li><strong>Tempat Lahir:</strong> <%= siswa.tempat_lahir %></li>
-                <li><strong>Tanggal Lahigr:</strong> <%= siswa.tanggal_lahir.toDateString() %></li>
+                <li><strong>Tanggal Lahir:</strong> 
+                    <%= siswa.tanggal_lahir ? new Date(siswa.tanggal_lahir).toDateString() : "Tanggal lahir tidak tersedia" %>
+                </li>
                 <li><strong>Gender:</strong> <%= siswa.gender %></li>
                 <li><strong>Angkatan:</strong> <%= siswa.angkatan %></li>
                 <li><strong>Kelas:</strong> <%= siswa.kelas %></li>
             </ul>
+            <a href="/profile/edit/<%= siswa.nisn %>" class="button">Edit</a>
         </section>
     </main>
     <footer>

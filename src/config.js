@@ -27,11 +27,11 @@ const Loginschema = new mongoose.Schema({
     },
     tempat_lahir: {
         type: String,
-        required: true
+        required: false
     },
     tanggal_lahir: {
         type: Date,
-        required: true
+        required: false 
     },
     gender: {
         type: String,
@@ -41,11 +41,11 @@ const Loginschema = new mongoose.Schema({
     },
     angkatan: {
         type: Number,
-        required: true,
+        required: false
     },
     kelas: {
         type: String,
-        required: true
+        required: false
     }
 });
 
