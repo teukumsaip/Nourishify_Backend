@@ -17,12 +17,16 @@
     </header>
     <main>
         <section>
-            <h2>Informasi Admin</h2>
-            <ul>
-                <li><strong>ID:</strong> <%= admin.id %></li>
-                <li><strong>Nama:</strong> <%= admin.nama %></li>
-                <li><strong>Email:</strong> <%= admin.email %></li>
-            </ul>
+            <% if(admin) { %>
+                <h2>Admin Information</h2>
+                <ul>
+                    <li><strong>Nama:</strong> <%= admin.nama %></li>
+                    <li><strong>Username:</strong> <%= admin.username %></li>
+                </ul>
+                <button onclick="location.href='/edit-profile'" class="edit-btn">Edit Profile</button>
+            <% } else { %>
+                <p>Silakan login untuk mengakses halaman ini.</p>
+            <% } %>
         </section>
     </main>
     <footer>
