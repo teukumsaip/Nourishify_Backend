@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login Admin</title>
 
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
     <div class="form-container">
-        <h2>Login</h2>
-        <form action="/login" method="post">
+        <h2>Login Admin</h2>
+        <form action="/admin/login" method="post">
             <div class="form-group">
-              <label for="nisn">NISN:</label>
-              <input type="text" id="nisn" name="nisn" placeholder="NISN" required autocomplete="off">
+              <label for="username">Username:</label>
+              <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="off">
             </div>
             <div class="form-group">
               <label for="password">Password:</label>
@@ -22,7 +22,7 @@
             </div>
             <button type="submit" class="submit-btn">Login</button>
         </form>
-        <p>Not a student? <a class="link" href="/loginAdmin">Login as Admin here</a></p>
+        <p>Not an admin? <a class="link" href="/login">Login as Student here</a></p>
     </div>
     
 </body>

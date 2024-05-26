@@ -1,15 +1,19 @@
 const mongoose = require('mongoose');
-const connect = mongoose.connect("mongodb+srv://nourishify:ppl12345@cluster0.zqahjjk.mongodb.net/nourishify");
 
-// Check koneksi database
-connect.then(() => {
+// Koneksi ke MongoDB
+mongoose.connect("mongodb+srv://nourishify:ppl12345@cluster0.zqahjjk.mongodb.net/nourishify", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => {
     console.log("Database Connected Successfully");
 })
-.catch(() => {
-    console.log("Database cannot be Connected");
-})
+.catch((error) => {
+    console.error("Database cannot be Connected:", error);
+});
 
-const Siswaschema = new mongoose.Schema({
+// Skema untuk Siswa
+const SiswaSchema = new mongoose.Schema({
     nisn: {
         type: Number,
         required: true,
@@ -49,14 +53,15 @@ const Siswaschema = new mongoose.Schema({
     }
 });
 
-const SiswaModel = mongoose.model("siswas", Siswaschema);
+const SiswaModel = mongoose.model("Siswa", SiswaSchema);
 
+// Skema untuk Admin
 const AdminSchema = new mongoose.Schema({
     nama: {
         type: String,
         required: true
     },
-    email: {
+    username: {
         type: String,
         required: true,
         unique: true
@@ -67,8 +72,9 @@ const AdminSchema = new mongoose.Schema({
     }
 });
 
-const AdminModel = mongoose.model("admins", AdminSchema);
+const AdminModel = mongoose.model("Admin", AdminSchema);
 
+// Skema untuk Menu
 const MenuSchema = new mongoose.Schema({
     nama_menu: {
         type: String,
@@ -86,6 +92,7 @@ const MenuSchema = new mongoose.Schema({
 
 const MenuModel = mongoose.model("Menu", MenuSchema);
 
+// Skema untuk Transaksi
 const TransaksiSchema = new mongoose.Schema({
     tanggal: {
         type: Date,
@@ -104,6 +111,7 @@ const TransaksiSchema = new mongoose.Schema({
 
 const TransaksiModel = mongoose.model("Transaksi", TransaksiSchema);
 
+// Skema untuk Booth
 const BoothSchema = new mongoose.Schema({
     nama: {
         type: String,

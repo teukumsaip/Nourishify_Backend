@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Dashboard</h1>
+            <nav>
+                <ul>
+                    <li><a href="/manage-users">Manage Users</a></li>
+                    <li><a href="/manage-menus">Manage Menus</a></li>
+                    <li><a href="/view-transactions">View Transactions</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <h2>Welcome, <%= admin.nama %>!</h2>
+            <p>Select an option from the menu to manage the system.</p>
+        </main>
+    </div>
+</body>
+</html>
