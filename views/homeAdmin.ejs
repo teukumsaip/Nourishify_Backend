@@ -23,6 +23,26 @@
         <main>
             <h2>Welcome, <%= admin.nama %>!</h2>
             <p>Select an option from the menu to manage the system.</p>
+
+            <h3>Daftar Menu</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Menu</th>
+                        <th>Deskripsi</th>
+                        <th>Stok</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% menus.forEach(menu => { %>
+                        <tr>
+                            <td><%= menu.nama_menu %></td>
+                            <td><%= menu.detail_menu %></td>
+                            <td><%= menu.stok %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
         </main>
     </div>
 </body>

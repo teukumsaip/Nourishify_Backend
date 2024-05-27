@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Menus</title>
+    <link rel="stylesheet" href="/styles.css"> 
+</head>
+<body>
+    <header>
+        <h1>Manage Menus</h1>
+        <nav>
+            <ul>
+                <li><a href="/admin/dashboard">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Menus</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Menu</th>
+                        <th>Deskripsi</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% menus.forEach(menu => { %>
+                        <tr>
+                            <td><%= menu.nama_menu %></td>
+                            <td><%= menu.detail_menu %></td>
+                            <td><%= menu.stok %></td>
+                            <td>
+                                <form action="/delete-menu/<%= menu._id %>" method="POST" style="display:inline;">
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Tambah Menu Baru</h2>
+            <form action="/add-menu" method="POST">
+                <div class="form-group">
+                    <label for="nama_menu">Nama Menu:</label>
+                    <input type="text" id="nama_menu" name="nama_menu" required>
+                </div>
+                <div class="form-group">
+                    <label for="detail_menu">Deskripsi:</label>
+                    <textarea id="detail_menu" name="detail_menu" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="stok">Stok:</label>
+                    <input type="number" id="stok" name="stok" required>
+                </div>
+                <button type="submit" class="submit-btn">Tambah Menu</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Your Website</p>
+    </footer>
+</body>
+</html>

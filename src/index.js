@@ -135,7 +135,7 @@ app.post("/admin/login", async (req, res) => {
         // Simpan informasi admin dalam sesi
         req.session.admin = admin;
 
-        res.render("homeAdmin", { admin });
+        res.redirect("/admin/dashboard");
     } catch (error) {
         console.error(error);
         res.status(500).send("Kesalahan Server Internal");
@@ -228,23 +228,15 @@ app.post("/profile/update/:nisn", async (req, res) => {
 });
 
 // Halaman Edit Profil Admin
-app.get("/edit-profile", (req, res) => {
+app.get("/edit-profile", checkAdminAuth, (req, res) => {
     // Periksa apakah ada admin dalam sesi sebelum merender halaman edit
-    if (!req.session.admin) {
-        return res.status(403).send("Anda tidak memiliki izin untuk mengakses halaman ini");
-    }
     res.render("editProfileAdmin", { admin: req.session.admin });
 });
 
 // Rute untuk mengupdate profil admin
-app.post("/edit-profile", async (req, res) => {
+app.post("/edit-profile", checkAdminAuth, async (req, res) => {
     try {
-        // Periksa apakah ada admin dalam sesi sebelum mencoba mengakses properti _id
-        if (!req.session.admin) {
-            return res.status(403).send("Anda tidak memiliki izin untuk mengakses halaman ini");
-        }
-        
-        const adminId = req.session.admin._id; // Mengambil ID admin dari sesi
+        const adminId = req.session.admin._id;
         const { nama, username, current_password, new_password, confirm_password } = req.body;
 
         const admin = await AdminModel.findById(adminId);
@@ -253,7 +245,6 @@ app.post("/edit-profile", async (req, res) => {
             return res.status(404).send("Admin tidak ditemukan");
         }
 
-        // Periksa apakah password saat ini cocok sebelum mengubahnya
         const isPasswordMatch = await bcrypt.compare(current_password, admin.password);
         if (!isPasswordMatch) {
             return res.status(400).send("Sandi saat ini salah");
@@ -262,7 +253,6 @@ app.post("/edit-profile", async (req, res) => {
         admin.nama = nama;
         admin.username = username;
 
-        // Jika password baru dimasukkan dan cocok dengan konfirmasi
         if (new_password && new_password === confirm_password) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(new_password, saltRounds);
@@ -279,15 +269,20 @@ app.post("/edit-profile", async (req, res) => {
 });
 
 // Halaman Dashboard Admin
-app.get("/admin/dashboard", checkAdminAuth, (req, res) => {
-    res.render("homeAdmin", { admin: req.session.admin });
+app.get("/admin/dashboard", checkAdminAuth, async (req, res) => {
+    try {
+        const menus = await MenuModel.find();
+        res.render("homeAdmin", { admin: req.session.admin, menus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
 });
 
 // Route untuk menampilkan profil admin
 app.get("/profile", checkAdminAuth, (req, res) => {
     res.render("profileAdmin", { admin: req.session.admin });
 });
-
 
 // Proteksi rute-rute admin
 function checkAdminAuth(req, res, next) {
@@ -296,6 +291,43 @@ function checkAdminAuth(req, res, next) {
     }
     res.redirect('/loginAdmin');
 };
+
+app.get("/manage-menus", checkAdminAuth, async (req, res) => {
+    try {
+        const menus = await MenuModel.find();
+        res.render("manageMenus", { menus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+app.post("/add-menu", checkAdminAuth, async (req, res) => {
+    try {
+        const { nama_menu, detail_menu, stok } = req.body;
+
+        const newMenu = new MenuModel({ nama_menu, detail_menu, stok });
+        await newMenu.save();
+
+        res.redirect("/manage-menus");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+app.post("/delete-menu/:id", checkAdminAuth, async (req, res) => {
+    try {
+        const menuId = req.params.id;
+
+        await MenuModel.findByIdAndDelete(menuId);
+
+        res.redirect("/manage-menus");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
 
 const port = 5000;
 app.listen(port, () => {
