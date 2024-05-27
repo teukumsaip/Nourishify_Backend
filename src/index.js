@@ -159,9 +159,37 @@ app.get("/profile/siswa/:nisn", async (req, res) => {
     }
 });
 
-app.get("/home", (req, res) => {
-    // Tampilkan halaman home.ejs
-    res.render("home", { siswa: req.session.siswa });
+app.get("/home", async (req, res) => {
+    try {
+        // Periksa apakah ada sesi siswa
+        if (!req.session.siswa) {
+            // Jika tidak ada sesi siswa, redirect ke halaman login
+            return res.redirect('/login');
+        }
+
+        // Ambil data siswa dari sesi
+        const siswa = req.session.siswa;
+
+        // Ambil daftar menu yang tersedia dari database
+        const menus = await MenuModel.find();
+
+        // Render halaman home dengan data siswa dan daftar menu
+        res.render("home", { siswa, menus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+app.get("/menu", async (req, res) => {
+    try {
+        // Ambil daftar menu dari database
+        const menus = await MenuModel.find();
+        res.render("menu", { menus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
 });
 
 app.get("/logout", (req, res) => {
@@ -323,6 +351,61 @@ app.post("/delete-menu/:id", checkAdminAuth, async (req, res) => {
         await MenuModel.findByIdAndDelete(menuId);
 
         res.redirect("/manage-menus");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+app.get("/view-transactions", async (req, res) => {
+    try {
+        const transactions = await TransaksiModel.find().populate('menu_id').exec();
+        
+        res.render("transaksi", { transactions });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+// Menangani pencarian siswa
+app.post("/search-siswa", async (req, res) => {
+    try {
+        const { query } = req.body;
+        // Lakukan pencarian siswa berdasarkan NISN atau nama
+        const results = await SiswaModel.find({ $or: [{ nisn: query }, { nama: query }] });
+        res.render("searchSiswaResult", { results });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+// Menampilkan halaman pencarian siswa
+app.get("/search-siswa", (req, res) => {
+    res.render("searchSiswa");
+});
+
+// Menampilkan halaman catat transaksi dengan daftar menu
+app.get("/record-transaction", async (req, res) => {
+    try {
+        // Ambil daftar menu yang tersedia
+        const menus = await MenuModel.find();
+        res.render("recordTransaction", { menus });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Kesalahan Server Internal");
+    }
+});
+
+// Menangani pencatatan transaksi baru
+app.post("/record-transaction", async (req, res) => {
+    try {
+        const { siswa_nisn, menu_id, tanggal } = req.body;
+        // Catat transaksi dengan menyimpan data ke database
+        const newTransaction = new TransaksiModel({ siswa_nisn, menu_id, tanggal });
+        await newTransaction.save();
+        res.redirect("/view-transactions");
     } catch (error) {
         console.error(error);
         res.status(500).send("Kesalahan Server Internal");

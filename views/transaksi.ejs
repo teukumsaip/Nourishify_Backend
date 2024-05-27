@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Transactions</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>View Transactions</h1>
+            <nav>
+                <ul>
+                    <li><a href="/profile">Profile</a></li>
+                    <li><a href="/manage-menus">Manage Menus</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <h2>Transaction History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Siswa NISN</th>
+                        <th>Menu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% transactions.forEach(transaction => { %>
+                        <tr>
+                            <td><%= transaction.tanggal.toDateString() %></td>
+                            <td><%= transaction.siswa_nisn %></td>
+                            <td><%= transaction.menu_id.nama_menu %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>
